@@ -1,8 +1,10 @@
 from fastapi import FastAPI, Request
 import time
 import sys
-
 import os
+import httpx
+import asyncio
+import logging
 
 # Add projets to path for sovereign_essence
 sys.path.append(os.path.expanduser("~/projets"))
@@ -11,11 +13,9 @@ try:
 except ImportError:
     engine = None
 
-app = FastAPI(title="Yes Yield Execution Engine")
+from harvest_optimizer import HarvestOptimizer
 
-import httpx
-import asyncio
-import logging
+app = FastAPI(title="Yes Yield Execution Engine")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -24,34 +24,49 @@ logger = logging.getLogger("YES-CONQUEROR")
 SOVEREIGN_API_URL = "http://localhost:8000"
 VVV_URL = "http://localhost:8003"
 
+optimizer = HarvestOptimizer()
+
 def calculate_roi(data: dict) -> float:
     """
     Analyzes performance and efficiency to calculate ROI.
+    Optimized by Atomic Evolution.
     """
     # Logic: ROI = (Performance * Efficiency) / Complexity
     performance = data.get("performance", 1.0)
     efficiency = data.get("efficiency", 1.0)
     complexity = data.get("complexity", 1.0)
     
-    roi = (performance * efficiency) / max(complexity, 0.1)
+    # Apply optimization level from HarvestOptimizer
+    roi = (performance * efficiency * optimizer.optimization_level) / max(complexity, 0.1)
     return round(roi, 4)
 
 def execute_high_yield(refinement_result: dict):
-    # 1. Execute the refined logic (Conquer)
-    # (Simulated execution of refined_logic)
+    # 1. Atomic Evolution Check (Cross-Build from SUPRA)
+    latency_us = refinement_result.get("latency_us", 100)
+    mode = optimizer.apply_atomic_evolution({"latency_us": latency_us})
     
-    # 2. Calculate Yield (Performance/Efficiency metrics)
+    # 2. Execute the refined logic (Conquer)
+    # (Simulated execution of refined_logic based on mode)
+    if mode == "FAST_HARVEST":
+        logger.info("[YES] Atomic Shift: Executing FAST_HARVEST mode")
+    
+    # 3. Calculate Yield (Performance/Efficiency metrics)
     actual_roi = calculate_roi(refinement_result)
     
-    # 3. If ROI > Threshold, mark as "Absolute Nectar"
-    # 'Pure Gold' criteria: ROI > 0.98
+    # 4. Self-Optimization Trigger (Sub-millisecond signals)
+    if actual_roi < 0.95:
+        optimizer.optimize_logic("execute_high_yield", actual_roi)
+    
+    # 5. If ROI > Threshold, mark as "Absolute Nectar"
     is_absolute_nectar = actual_roi > 0.98
     
     result = {
         "execution_status": "CONQUERED",
+        "mode": mode,
         "yield_roi": actual_roi,
         "is_absolute_nectar": is_absolute_nectar,
         "nectar_classification": "Absolute Nectar" if is_absolute_nectar else "High Grade Nectar",
+        "optimization_meta": optimizer.get_report(),
         "timestamp": time.time()
     }
     
@@ -76,6 +91,7 @@ async def distillation_loop():
                     "performance": 0.99,
                     "efficiency": 0.995,
                     "complexity": 1.0,
+                    "latency_us": 120,
                     "refined_logic": "Optimized_Matrix_Factorization"
                 }
                 
@@ -94,6 +110,22 @@ async def distillation_loop():
 @app.on_event("startup")
 async def startup_event():
     asyncio.create_task(distillation_loop())
+
+@app.get("/status")
+async def get_status():
+    return {
+        "node": "YES",
+        "status": "active",
+        "optimization": optimizer.get_report()
+    }
+
+@app.post("/optimize")
+async def trigger_optimization(performance_data: dict):
+    """
+    Manual or automated trigger for atomic evolution.
+    """
+    result = optimizer.optimize_logic("harvest_engine", performance_data.get("roi", 1.0))
+    return {"status": "optimized", "record": result}
 
 @app.post("/execute")
 async def execute(objective: str):
@@ -121,4 +153,4 @@ async def protocol_callback(payload: dict):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    uvicorn.run(app, host="0.0.0.0", port=8012)
