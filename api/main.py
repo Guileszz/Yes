@@ -25,6 +25,7 @@ SOVEREIGN_API_URL = "http://localhost:8000"
 VVV_URL = "http://localhost:8003"
 
 optimizer = HarvestOptimizer()
+nectar_events = []
 
 def calculate_roi(data: dict) -> float:
     """
@@ -69,6 +70,9 @@ def execute_high_yield(refinement_result: dict):
         "optimization_meta": optimizer.get_report(),
         "timestamp": time.time()
     }
+
+    if is_absolute_nectar:
+        nectar_events.append(result)
     
     return result
 
@@ -118,6 +122,13 @@ async def get_status():
         "status": "active",
         "optimization": optimizer.get_report()
     }
+
+@app.get("/nectar/events")
+async def get_nectar_events():
+    """
+    Returns all Absolute Nectar events since the engine started.
+    """
+    return {"events": nectar_events, "count": len(nectar_events)}
 
 @app.post("/optimize")
 async def trigger_optimization(performance_data: dict):
